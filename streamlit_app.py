@@ -1,5 +1,3 @@
-import random
-
 import streamlit as st
 
 
@@ -12,13 +10,6 @@ AREA_COLORS = {
     "가족": "#e09f3e",
     "친구": "#d1495b",
 }
-SITUATIONS = [
-    "오늘은 날씨가 좋아요. 바깥에서 움직이면 기분이 상쾌해질지도 몰라요!",
-    "오늘은 가족이 조금 바쁜 날이에요. 함께하는 시간을 계획해 보세요.",
-    "새로운 책이나 관심사가 눈에 띄는 날이에요. 무엇을 해볼까요?",
-    "친구에게 반가운 연락이 왔어요. 오늘의 시간을 잘 나눠 보세요.",
-    "오늘은 평소보다 피곤할 수 있어요. 쉬는 시간도 생각해 보세요.",
-]
 AREAS = {
     "건강": {
         "activities": ["낮잠 및 휴식", "가벼운 운동", "맛있는 간식 먹기"],
@@ -55,8 +46,6 @@ def format_time(minutes):
 def initialize_state():
     if "scores" not in st.session_state:
         st.session_state.scores = {name: 50 for name in SCORE_NAMES}
-    if "situation" not in st.session_state:
-        st.session_state.situation = random.choice(SITUATIONS)
     for slot in range(TOTAL_BLOCKS):
         st.session_state.setdefault(f"slot_{slot}", UNASSIGNED)
 
@@ -65,7 +54,6 @@ st.set_page_config(page_title="방과 후 시간 관리", page_icon="🕒", layo
 initialize_state()
 
 st.title("🕒 방과 후 시간 관리")
-st.warning(f"오늘의 돌발 상황: {st.session_state.situation}")
 
 slot_selections = [
     st.session_state[f"slot_{slot}"] for slot in range(TOTAL_BLOCKS)
