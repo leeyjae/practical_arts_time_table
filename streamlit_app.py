@@ -1,3 +1,5 @@
+from html import escape
+
 import streamlit as st
 
 
@@ -9,6 +11,12 @@ AREA_COLORS = {
     "학업": "#277da1",
     "가족": "#e09f3e",
     "친구": "#d1495b",
+}
+AREA_BACKGROUND_COLORS = {
+    "건강": "#cfe5c2",
+    "학업": "#c3dfeb",
+    "가족": "#f2d99f",
+    "친구": "#edc1c8",
 }
 AREAS = {
     "건강": {
@@ -25,7 +33,7 @@ AREAS = {
     },
     "친구": {
         "activities": ["친구랑 놀기", "친구와 온라인 게임하기", "친구 고민 들어주기"],
-        "effects": {"친구": 10, "행복": 5, "건강": -5},
+        "effects": {"친구": 10, "행복": 5},
     },
 }
 ACTIVITY_TO_AREA = {
@@ -50,10 +58,10 @@ def initialize_state():
         st.session_state.setdefault(f"slot_{slot}", UNASSIGNED)
 
 
-st.set_page_config(page_title="방과 후 시간 관리", page_icon="🕒", layout="wide")
+st.set_page_config(page_title="시간 관리 도전하기", page_icon="🕒", layout="wide")
 initialize_state()
 
-st.title("🕒 방과 후 시간 관리")
+st.title("시간 관리 도전하기")
 
 slot_selections = [
     st.session_state[f"slot_{slot}"] for slot in range(TOTAL_BLOCKS)
@@ -141,3 +149,32 @@ for slot, selection in enumerate(slot_selections):
             key=f"slot_{slot}",
             label_visibility="collapsed",
         )
+
+st.header("한눈에 보는 블록 배치")
+st.caption("12개 블록을 한눈에 확인할 수 있어요. 각 칸은 30분이며, 색으로 영역을 구분해요.")
+overview_blocks = []
+for slot, selection in enumerate(slot_selections):
+    start_time = format_time(15 * 60 + slot * 30)
+    area = ACTIVITY_TO_AREA.get(selection)
+    background_color = AREA_BACKGROUND_COLORS.get(area, "#e2e8f0")
+    activity = selection.removeprefix(f"{area} · ") if area else UNASSIGNED
+    area_label = area or "미배치"
+    overview_blocks.append(
+        f'<div role="listitem" style="min-width:0;box-sizing:border-box;min-height:104px;'
+        f'padding:8px 6px;border-right:2px solid white;background:{background_color}">'
+        f'<div style="font-size:12px;color:#000;white-space:nowrap">'
+        f'{escape(start_time)}</div>'
+        f'<div style="margin-top:5px;font-size:12px;font-weight:700;color:#000">'
+        f'{escape(area_label)}</div>'
+        f'<div title="{escape(selection)}" style="margin-top:4px;font-size:12px;'
+        f'line-height:1.3;overflow-wrap:anywhere;color:#000">'
+        f'{escape(activity)}</div></div>'
+    )
+st.markdown(
+    '<div style="width:100%;border:1px solid #cbd5e1;border-radius:8px;'
+    'overflow:hidden"><div role="list" aria-label="오늘의 블록 배치 요약" '
+    f'style="display:grid;grid-template-columns:repeat({TOTAL_BLOCKS},minmax(0,1fr))">'
+    + "".join(overview_blocks)
+    + "</div></div>",
+    unsafe_allow_html=True,
+)
