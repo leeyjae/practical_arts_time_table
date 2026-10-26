@@ -5,6 +5,7 @@ import streamlit as st
 
 TOTAL_BLOCKS = 12
 SCORE_NAMES = ["건강", "학업", "가족", "친구", "행복"]
+INITIAL_SCORES = {"건강": 0, "학업": 0, "가족": 0, "친구": 0, "행복": 30}
 UNASSIGNED = "비워 두기"
 AREA_COLORS = {
     "건강": "#55a630",
@@ -53,7 +54,7 @@ def format_time(minutes):
 
 def initialize_state():
     if "scores" not in st.session_state:
-        st.session_state.scores = {name: 50 for name in SCORE_NAMES}
+        st.session_state.scores = INITIAL_SCORES.copy()
     for slot in range(TOTAL_BLOCKS):
         st.session_state.setdefault(f"slot_{slot}", UNASSIGNED)
 
@@ -178,3 +179,11 @@ st.markdown(
     + "</div></div>",
     unsafe_allow_html=True,
 )
+
+if used_blocks == TOTAL_BLOCKS:
+    st.header("최종 점수")
+    final_score_columns = st.columns(len(SCORE_NAMES))
+    for column, name in zip(final_score_columns, SCORE_NAMES):
+        with column:
+            st.metric(name, f"{projected_scores[name]}점")
+            st.progress(projected_scores[name] / 100)
